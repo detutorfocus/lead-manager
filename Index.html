@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+<base target="_top">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Google Sans', Arial, sans-serif; margin: 0; padding: 0;
+    background: #f6f8fc; color: #202124;
+  }
+  header {
+    background: #1a73e8; color: #fff; padding: 20px 24px;
+  }
+  header h1 { margin: 0; font-size: 20px; font-weight: 600; }
+  header p { margin: 4px 0 0; font-size: 13px; opacity: 0.9; }
+
+  .stats-bar {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 10px; padding: 16px 24px; max-width: 1100px; margin: 0 auto;
+  }
+  .stat-card {
+    background: #fff; border-radius: 8px; padding: 12px 14px; box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+  }
+  .stat-card .num { font-size: 22px; font-weight: 700; color: #1a73e8; }
+  .stat-card .label { font-size: 11px; color: #5f6368; margin-top: 2px; }
+  .stat-card.warn .num { color: #c5221f; }
+
+  main { max-width: 1100px; margin: 0 auto; padding: 8px 24px 32px; }
+  h2.section-title { font-size: 14px; color: #5f6368; text-transform: uppercase; letter-spacing: 0.04em; margin: 20px 0 10px; }
+
+  .nav-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px;
+  }
+  .nav-card {
+    display: block; background: #fff; border-radius: 10px; padding: 18px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1); text-decoration: none; color: inherit;
+    border: 1px solid #e8eaed; transition: box-shadow 0.15s, transform 0.15s;
+  }
+  .nav-card:hover { box-shadow: 0 4px 10px rgba(0,0,0,0.12); transform: translateY(-1px); }
+  .nav-card .icon-badge {
+    width: 34px; height: 34px; border-radius: 8px; background: #e8f0fe; color: #1a73e8;
+    display: flex; align-items: center; justify-content: center; margin-bottom: 10px;
+  }
+  .nav-card svg { width: 19px; height: 19px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+  .nav-card .title { font-weight: 600; font-size: 15px; margin-bottom: 4px; }
+  .nav-card .desc { font-size: 12px; color: #5f6368; line-height: 1.4; }
+
+  footer { text-align: center; padding: 16px; font-size: 11px; color: #9aa0a6; }
+
+  @media (max-width: 480px) {
+    header { padding: 16px; }
+    main { padding: 4px 12px 24px; }
+    .stats-bar { padding: 12px; }
+  }
+</style>
+</head>
+<body>
+  <header>
+    <h1>Lead Management</h1>
+    <p>Business Lead Duplicate Checker &amp; Lead Management System</p>
+  </header>
+
+  <div class="stats-bar" id="statsBar">
+    <div class="stat-card"><div class="num" id="statTotal">—</div><div class="label">Total Leads</div></div>
+    <div class="stat-card"><div class="num" id="statActive">—</div><div class="label">Active Leads</div></div>
+    <div class="stat-card warn"><div class="num" id="statReview">—</div><div class="label">Requiring Review</div></div>
+    <div class="stat-card warn"><div class="num" id="statFollowUps">—</div><div class="label">Follow-Ups Due</div></div>
+    <div class="stat-card"><div class="num" id="statToday">—</div><div class="label">Added Today</div></div>
+  </div>
+
+  <main>
+    <h2 class="section-title">Get Things Done</h2>
+    <div class="nav-grid">
+      <a class="nav-card" href="<?!= webAppUrl ?>?page=AddLead">
+        <div class="icon-badge"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></div>
+        <div class="title">Add New Lead</div>
+        <div class="desc">Enter a business, run the duplicate check, and save it to the tracker.</div>
+      </a>
+      <a class="nav-card" href="<?!= webAppUrl ?>?page=SearchLeads">
+        <div class="icon-badge"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+        <div class="title">Search Leads</div>
+        <div class="desc">Find a lead by business name, contact, city, sector, or any channel.</div>
+      </a>
+      <a class="nav-card" href="<?!= webAppUrl ?>?page=FollowUps">
+        <div class="icon-badge"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="12,7 12,12 15,15"/></svg></div>
+        <div class="title">Follow-Ups</div>
+        <div class="desc">See who's waiting on a reply and mark follow-ups as done.</div>
+      </a>
+      <a class="nav-card" href="<?!= webAppUrl ?>?page=BulkScan">
+        <div class="icon-badge"><svg viewBox="0 0 24 24"><polygon points="12,2 22,8 12,14 2,8"/><polyline points="2,16 12,22 22,16"/><polyline points="2,12 12,18 22,12"/></svg></div>
+        <div class="title">Bulk Scan</div>
+        <div class="desc">Scan every existing lead for possible duplicates, with live progress.</div>
+      </a>
+      <a class="nav-card" href="<?!= webAppUrl ?>?page=ReviewDuplicates">
+        <div class="icon-badge"><svg viewBox="0 0 24 24"><polygon points="12,3 22,20 2,20"/><line x1="12" y1="9" x2="12" y2="14"/><circle cx="12" cy="17" r="0.6" fill="currentColor" stroke="none"/></svg></div>
+        <div class="title">Review Duplicates</div>
+        <div class="desc">Work through open duplicate cases: merge, keep both, or dismiss.</div>
+      </a>
+      <a class="nav-card" id="dashboardCard" href="#" target="_blank">
+        <div class="icon-badge"><svg viewBox="0 0 24 24"><line x1="4" y1="20" x2="4" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="20" y1="20" x2="20" y2="14"/></svg></div>
+        <div class="title">Full Dashboard</div>
+        <div class="desc">Open the complete stats dashboard in the Google Sheet.</div>
+      </a>
+    </div>
+  </main>
+
+  <footer>LeadManagement · This page and the Add Lead / Search / Follow-Ups / Bulk Scan / Review Duplicates screens are also available from the Lead Manager menu inside the Google Sheet.</footer>
+
+<script>
+  // Reuses the existing refreshDashboard() function (06_Dashboard.gs) -
+  // no dashboard math is duplicated here, this just displays what it returns.
+  google.script.run.withSuccessHandler(function (stats) {
+    if (!stats || !stats.success) return;
+    document.getElementById('statTotal').textContent = stats.totalLeads;
+    document.getElementById('statActive').textContent = stats.activeLeads;
+    document.getElementById('statReview').textContent = stats.needsReview;
+    document.getElementById('statToday').textContent = stats.today;
+  }).withFailureHandler(function () { /* stats are a nice-to-have; leave the em dashes on failure */ }).refreshDashboard();
+
+  // Reuses the existing generateFollowUpMetrics() (09_FollowUp.gs) - no math duplicated here.
+  google.script.run.withSuccessHandler(function (fu) {
+    if (fu) document.getElementById('statFollowUps').textContent = fu.due;
+  }).withFailureHandler(function () { /* nice-to-have */ }).generateFollowUpMetrics();
+
+  // Reuses the existing spreadsheet - just asks for its URL, no business logic here.
+  google.script.run.withSuccessHandler(function (url) {
+    if (url) document.getElementById('dashboardCard').href = url;
+  }).getDashboardSheetUrl();
+</script>
+</body>
+</html>

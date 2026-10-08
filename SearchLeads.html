@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+<head>
+<base target="_top">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --primary: #1a73e8; --primary-dark: #1557b0; --primary-light: #e8f0fe;
+    --background: #f6f8fc; --surface: #ffffff; --border: #e3e6ea;
+    --text: #202124; --muted: #5f6368; --muted-light: #80868b;
+    --success: #1e8e3e; --success-bg: #e6f4ea; --success-border: #b7dfc0;
+    --warning: #a15c00; --warning-bg: #fef7e0; --warning-border: #fce8b2;
+    --danger: #c5221f; --danger-bg: #fce8e6; --danger-border: #f6aea9;
+    --radius: 10px; --radius-sm: 7px;
+    --shadow: 0 1px 2px rgba(16,24,40,0.05), 0 2px 6px rgba(16,24,40,0.06);
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 13.5px; color: var(--text); margin: 0; background: var(--background);
+  }
+  .app-shell { max-width: 680px; margin: 0 auto; padding: 0 0 28px; }
+  .topbar { padding: 14px 18px 0; }
+  .brand { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--primary); }
+  .page-header { display: flex; align-items: flex-start; gap: 10px; padding: 6px 18px 16px; }
+  .page-header .icon-badge {
+    flex: none; width: 34px; height: 34px; border-radius: var(--radius-sm); background: var(--primary-light);
+    color: var(--primary); display: flex; align-items: center; justify-content: center;
+  }
+  .page-header h1 { font-size: 17px; margin: 2px 0 2px; font-weight: 700; }
+  .page-header p { margin: 0; font-size: 12.5px; color: var(--muted); }
+
+  main { padding: 0 18px; }
+  .icon { width: 16px; height: 16px; flex: none; }
+  .icon-lg { width: 22px; height: 22px; }
+  svg.icon, svg.icon-lg { stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+  .search-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 12px; margin-bottom: 14px; position: sticky; top: 0; z-index: 2;
+  }
+  .search-row { display: flex; gap: 8px; }
+  .search-input-wrap { flex: 1; position: relative; }
+  .search-input-wrap svg { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--muted-light); }
+  .search-input-wrap input {
+    width: 100%; padding: 9px 10px 9px 32px; border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+    font-size: 13px; font-family: inherit; transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .search-input-wrap input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(26,115,232,0.14); }
+  select {
+    padding: 9px 8px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 12.5px;
+    font-family: inherit; background: var(--surface); color: var(--text); max-width: 150px;
+  }
+  button { font-family: inherit; cursor: pointer; border: none; border-radius: var(--radius-sm); font-weight: 600; font-size: 13px; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 9px 16px; }
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-primary:hover { background: var(--primary-dark); }
+  .btn-primary:disabled { background: #a9c3ea; cursor: not-allowed; }
+
+  .result-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 12px 13px; margin-bottom: 8px; cursor: pointer; transition: box-shadow 0.15s, border-color 0.15s;
+  }
+  .result-card:hover { box-shadow: var(--shadow); border-color: #c7d5f0; }
+  .result-card:focus-visible { outline: 2px solid var(--primary); outline-offset: 1px; }
+  .result-top { display: flex; align-items: center; gap: 8px; }
+  .result-name { font-weight: 700; font-size: 13.5px; flex: 1; }
+  .chip { display: inline-flex; align-items: center; gap: 4px; font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.02em; }
+  .chip-danger { background: var(--danger-bg); color: var(--danger); }
+  .chip-warning { background: var(--warning-bg); color: var(--warning); }
+  .chip-neutral { background: #f1f3f4; color: var(--muted); }
+  .result-meta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 6px; font-size: 11.5px; color: var(--muted); }
+  .result-meta span { display: inline-flex; align-items: center; gap: 4px; }
+
+  .empty-state, .loading-state {
+    text-align: center; padding: 40px 20px; color: var(--muted);
+  }
+  .empty-state svg, .loading-state svg { color: var(--muted-light); margin-bottom: 10px; }
+  .empty-state h3 { margin: 0 0 4px; font-size: 14px; color: var(--text); }
+  .empty-state p { margin: 0; font-size: 12.5px; }
+  .spinner { width: 26px; height: 26px; border: 3px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto 10px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .detail-panel {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 16px; margin-top: 14px;
+  }
+  .detail-head { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+  .detail-head h3 { margin: 0; font-size: 15px; flex: 1; }
+  .detail-head .close-btn { background: none; border: none; cursor: pointer; color: var(--muted-light); padding: 4px; border-radius: 6px; }
+  .detail-head .close-btn:hover { background: #f1f3f4; color: var(--text); }
+  .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px; }
+  @media (max-width: 460px) { .detail-grid { grid-template-columns: 1fr; } }
+  .detail-item .label { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted-light); font-weight: 700; margin-bottom: 2px; }
+  .detail-item .value { font-size: 13px; color: var(--text); }
+  .detail-item.full { grid-column: 1 / -1; }
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <div class="topbar"><div class="brand">LeadManagement</div></div>
+  <div class="page-header">
+    <div class="icon-badge"><svg class="icon-lg" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+    <div>
+      <h1>Search Leads</h1>
+      <p>Find a lead by business name, contact, city, sector, or channel.</p>
+    </div>
+  </div>
+
+  <main>
+    <div class="search-card">
+      <div class="search-row">
+        <div class="search-input-wrap">
+          <svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="q" placeholder="Search leads…" onkeydown="if(event.key==='Enter') doSearch();">
+        </div>
+        <select id="field">
+          <option value="All">All fields</option>
+          <option>Business Name</option><option>Contact Name</option><option>Instagram</option>
+          <option>LinkedIn</option><option>Email</option><option>Phone</option><option>Website</option>
+          <option>City</option><option>Sector</option><option>Lead ID</option><option>Assigned To</option>
+        </select>
+        <button class="btn btn-primary" id="searchBtn" onclick="doSearch()">
+          <svg class="icon" viewBox="0 0 24 24" style="width:15px;height:15px;stroke:#fff;"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          Search
+        </button>
+      </div>
+    </div>
+
+    <div id="results">
+      <div class="empty-state">
+        <svg class="icon-lg" viewBox="0 0 24 24" style="width:36px;height:36px;"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <h3>Search your leads</h3>
+        <p>Type a business name, contact, or any channel and press Search.</p>
+      </div>
+    </div>
+    <div id="detail"></div>
+  </main>
+</div>
+
+<script>
+  function doSearch() {
+    var q = document.getElementById('q').value.trim();
+    var field = document.getElementById('field').value;
+    document.getElementById('detail').innerHTML = '';
+    var resultsEl = document.getElementById('results');
+    if (!q) return;
+
+    document.getElementById('searchBtn').disabled = true;
+    resultsEl.innerHTML =
+      '<div class="loading-state"><div class="spinner"></div>Searching leads…</div>';
+
+    google.script.run.withSuccessHandler(function (res) {
+      document.getElementById('searchBtn').disabled = false;
+      renderResults(res);
+    }).withFailureHandler(function (e) {
+      document.getElementById('searchBtn').disabled = false;
+      resultsEl.innerHTML = '<div class="empty-state"><h3>Search failed</h3><p>' + escapeHtml(e.message || e) + '</p></div>';
+    }).searchLeads(q, field);
+  }
+
+  function renderResults(res) {
+    var el = document.getElementById('results');
+    if (!res.success) {
+      el.innerHTML = '<div class="empty-state"><h3>Search failed</h3><p>' + escapeHtml(res.error) + '</p></div>';
+      return;
+    }
+    if (!res.results.length) {
+      el.innerHTML =
+        '<div class="empty-state">' +
+        '  <svg class="icon-lg" viewBox="0 0 24 24" style="width:36px;height:36px;"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>' +
+        '  <h3>No leads found</h3>' +
+        '  <p>Try changing your search terms or filters.</p>' +
+        '</div>';
+      return;
+    }
+    el.innerHTML = '';
+    res.results.forEach(function (r) {
+      var card = document.createElement('div');
+      card.className = 'result-card';
+      card.tabIndex = 0;
+      var statusChip = '';
+      if (r.duplicateStatus && r.duplicateStatus !== 'No Strong Match' && r.duplicateStatus !== 'Not Checked') {
+        var chipClass = r.duplicateStatus === 'Confirmed Duplicate' ? 'chip-danger' : 'chip-warning';
+        statusChip = '<span class="chip ' + chipClass + '">' + escapeHtml(r.duplicateStatus) + '</span>';
+      } else if (r.recordStatus && r.recordStatus !== 'Active') {
+        statusChip = '<span class="chip chip-neutral">' + escapeHtml(r.recordStatus) + '</span>';
+      }
+      card.innerHTML =
+        '<div class="result-top"><span class="result-name">' + escapeHtml(r.businessName) + '</span>' + statusChip + '</div>' +
+        '<div class="result-meta">' +
+        '  <span>' + r.leadId + '</span>' +
+        (r.city ? '  <span>' + escapeHtml(r.city) + '</span>' : '') +
+        (r.sector ? '  <span>' + escapeHtml(r.sector) + '</span>' : '') +
+        (r.contactName ? '  <span>' + escapeHtml(r.contactName) + '</span>' : '') +
+        '</div>';
+      card.onclick = function () { showDetail(r.leadId); };
+      card.onkeydown = function (e) { if (e.key === 'Enter') showDetail(r.leadId); };
+      el.appendChild(card);
+    });
+  }
+
+  function showDetail(leadId) {
+    google.script.run.withSuccessHandler(function (lead) {
+      if (!lead) return;
+      var d = document.getElementById('detail');
+      function item(label, value, full) {
+        return '<div class="detail-item' + (full ? ' full' : '') + '"><div class="label">' + label + '</div><div class="value">' + escapeHtml(value || '—') + '</div></div>';
+      }
+      var notContacted = (lead['Contact Status'] || 'Not Contacted') === 'Not Contacted';
+      d.innerHTML =
+        '<div class="detail-panel">' +
+        '  <div class="detail-head"><h3>' + escapeHtml(lead['Business Name']) + '</h3>' +
+        '    <button class="close-btn" id="closeDetailBtn" aria-label="Close details"><svg class="icon" viewBox="0 0 24 24"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button>' +
+        '  </div>' +
+        '  <div class="detail-grid">' +
+        item('Lead ID', lead['Lead ID']) +
+        item('Record Status', lead['Record Status']) +
+        item('City', lead['City']) +
+        item('Sector', lead['Sector']) +
+        item('Contact', lead['Contact Name']) +
+        item('Contact Role', lead['Contact Role']) +
+        item('Instagram', lead['Instagram Handle']) +
+        item('Website', lead['Website']) +
+        item('Email', lead['Business Email']) +
+        item('WhatsApp', lead['WhatsApp Business Line']) +
+        item('Contact Status', lead['Contact Status'] || 'Not Contacted') +
+        item('Assigned To', lead['Assigned To']) +
+        item('Observation', lead['Observation'], true) +
+        '  </div>' +
+        (notContacted ? '  <button class="btn btn-primary" id="markContactedBtn" style="margin-top:12px;width:100%;">Mark Contacted</button>' : '') +
+        '</div>';
+      document.getElementById('closeDetailBtn').onclick = function () { d.innerHTML = ''; };
+      var contactedBtn = document.getElementById('markContactedBtn');
+      if (contactedBtn) {
+        contactedBtn.onclick = function () {
+          google.script.run.withSuccessHandler(function (res) {
+            if (res.success) showDetail(leadId); // refresh with updated status
+          }).markContacted(leadId, lead['Assigned To']);
+        };
+      }
+    }).getLeadById(leadId);
+  }
+
+  function escapeHtml(s) {
+    return String(s || '').replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+</script>
+</body>
+</html>

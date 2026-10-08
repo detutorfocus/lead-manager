@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+<head>
+<base target="_top">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --primary: #1a73e8; --primary-dark: #1557b0; --primary-light: #e8f0fe;
+    --background: #f6f8fc; --surface: #ffffff; --border: #e3e6ea;
+    --text: #202124; --muted: #5f6368; --muted-light: #80868b;
+    --success: #1e8e3e; --success-bg: #e6f4ea; --success-border: #b7dfc0;
+    --warning: #a15c00; --warning-bg: #fef7e0; --warning-border: #fce8b2;
+    --danger: #c5221f; --danger-bg: #fce8e6; --danger-border: #f6aea9;
+    --radius: 10px; --radius-sm: 7px;
+    --shadow: 0 1px 2px rgba(16,24,40,0.05), 0 2px 6px rgba(16,24,40,0.06);
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 13.5px; color: var(--text); margin: 0; background: var(--background);
+  }
+  .app-shell { max-width: 680px; margin: 0 auto; padding: 0 0 28px; }
+  .topbar { padding: 14px 18px 0; }
+  .brand { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--primary); }
+  .page-header { display: flex; align-items: flex-start; gap: 10px; padding: 6px 18px 16px; }
+  .page-header .icon-badge {
+    flex: none; width: 34px; height: 34px; border-radius: var(--radius-sm); background: var(--primary-light);
+    color: var(--primary); display: flex; align-items: center; justify-content: center;
+  }
+  .page-header h1#heading { font-size: 17px; margin: 2px 0 2px; font-weight: 700; }
+  .page-header p { margin: 0; font-size: 12.5px; color: var(--muted); }
+
+  main { padding: 0 18px; }
+  .icon { width: 16px; height: 16px; flex: none; }
+  .icon-lg { width: 22px; height: 22px; }
+  svg.icon, svg.icon-lg { stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+  .alert { display: flex; gap: 9px; align-items: flex-start; padding: 11px 12px; border-radius: var(--radius-sm); font-size: 12.5px; margin-bottom: 12px; border: 1px solid; }
+  .alert-success { background: var(--success-bg); border-color: var(--success-border); color: var(--success); }
+  .alert-error { background: var(--danger-bg); border-color: var(--danger-border); color: var(--danger); }
+
+  .review-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 14px; margin-bottom: 12px;
+  }
+  .badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10.5px; font-weight: 700; padding: 3px 9px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.03em; }
+  .badge-danger { background: var(--danger-bg); color: var(--danger); }
+  .badge-warning { background: var(--warning-bg); color: var(--warning); }
+  .badge-neutral { background: #f1f3f4; color: var(--muted); }
+  .review-top { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .review-score { margin-left: auto; font-weight: 800; font-size: 15px; }
+
+  .compare-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 8px; align-items: center; margin-bottom: 10px; }
+  @media (max-width: 480px) { .compare-grid { grid-template-columns: 1fr; } .compare-grid .vs { display: none; } }
+  .compare-col { background: var(--background); border-radius: var(--radius-sm); padding: 9px 11px; }
+  .compare-col .lead-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted-light); font-weight: 700; margin-bottom: 3px; }
+  .compare-col .lead-name { font-weight: 700; font-size: 13.5px; }
+  .compare-col .lead-id { font-size: 11px; color: var(--muted-light); margin-top: 2px; }
+  .vs { font-size: 11px; font-weight: 700; color: var(--muted-light); text-align: center; }
+
+  .tag-row { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 12px; }
+  .tag { display: inline-flex; align-items: center; gap: 4px; background: var(--primary-light); color: var(--primary-dark); border-radius: 20px; padding: 3px 9px; font-size: 11px; font-weight: 600; }
+
+  button { font-family: inherit; cursor: pointer; border: none; border-radius: var(--radius-sm); font-weight: 600; font-size: 12.5px; }
+  .btn-row { display: flex; gap: 7px; flex-wrap: wrap; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 5px; padding: 8px 12px; flex: 1; min-width: 96px; }
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-primary:hover { background: var(--primary-dark); }
+  .btn-success { background: var(--success-bg); color: var(--success); border: 1px solid var(--success-border); }
+  .btn-success:hover { background: #d7eedd; }
+  .btn-secondary { background: #f1f3f4; color: var(--text); }
+  .btn-secondary:hover { background: #e4e6e8; }
+
+  .empty-state { text-align: center; padding: 44px 20px; color: var(--muted); }
+  .empty-state svg { color: var(--success); margin-bottom: 10px; }
+  .empty-state h3 { margin: 0 0 4px; font-size: 14px; color: var(--text); }
+  .empty-state p { margin: 0; font-size: 12.5px; }
+  .loading-state { text-align: center; padding: 40px 20px; color: var(--muted); }
+  .spinner { width: 26px; height: 26px; border: 3px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto 10px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <div class="topbar"><div class="brand">LeadManagement</div></div>
+  <div class="page-header">
+    <div class="icon-badge"><svg class="icon-lg" viewBox="0 0 24 24"><polygon points="12,3 22,20 2,20"/><line x1="12" y1="9" x2="12" y2="14"/><circle cx="12" cy="17" r="0.6" fill="currentColor" stroke="none"/></svg></div>
+    <div>
+      <h1 id="heading">Duplicate Review</h1>
+      <p>Review possible matches before taking action.</p>
+    </div>
+  </div>
+
+  <main>
+    <div id="globalMsg"></div>
+    <div id="list">
+      <div class="loading-state"><div class="spinner"></div>Loading…</div>
+    </div>
+  </main>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', init);
+
+  function init() {
+    google.script.run.withSuccessHandler(function (manualLead) {
+      if (manualLead) {
+        document.getElementById('heading').textContent = 'Check: ' + manualLead.businessName;
+        runManualCheck(manualLead);
+      } else {
+        loadOpenReviews();
+      }
+    }).getManualCheckLead();
+  }
+
+  function runManualCheck(leadData) {
+    document.getElementById('list').innerHTML = '<div class="loading-state"><div class="spinner"></div>Checking…</div>';
+    google.script.run.withSuccessHandler(function (res) {
+      renderManualResult(res, leadData);
+    }).checkForDuplicates(leadData);
+  }
+
+  function renderManualResult(res, leadData) {
+    var el = document.getElementById('list');
+    if (!res.success) { el.innerHTML = emptyState('Check failed', res.error); return; }
+    if (!res.matches.length) { el.innerHTML = emptyState('No strong match found', 'This lead looks unique compared to your existing records.', true); return; }
+    el.innerHTML = '';
+    res.matches.forEach(function (m) {
+      el.appendChild(buildCard(m, leadData.excludeLeadId, m.leadId, false));
+    });
+  }
+
+  function loadOpenReviews() {
+    document.getElementById('list').innerHTML = '<div class="loading-state"><div class="spinner"></div>Loading…</div>';
+    google.script.run.withSuccessHandler(function (reviews) {
+      var el = document.getElementById('list');
+      if (!reviews.length) { el.innerHTML = emptyState('No open duplicate reviews', 'You are all caught up.', true); return; }
+      el.innerHTML = '';
+      reviews.forEach(function (r) {
+        var m = { leadId: r.existingLeadId, businessName: r.existingBusiness, score: r.score, matchingFields: r.matchingFields.split(', ').filter(Boolean) };
+        var card = buildCard(m, r.newLeadId, r.existingLeadId, true, r.newBusiness);
+        el.appendChild(card);
+      });
+    }).getOpenReviews();
+  }
+
+  function emptyState(title, desc, positive) {
+    var icon = positive
+      ? '<svg class="icon-lg" viewBox="0 0 24 24" style="width:36px;height:36px;"><circle cx="12" cy="12" r="9"/><polyline points="8,12 11,15 16,9"/></svg>'
+      : '<svg class="icon-lg" viewBox="0 0 24 24" style="width:36px;height:36px;"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="13"/><circle cx="12" cy="16.2" r="0.6" fill="currentColor" stroke="none"/></svg>';
+    return '<div class="empty-state">' + icon + '<h3>' + escapeHtml(title) + '</h3><p>' + escapeHtml(desc) + '</p></div>';
+  }
+
+  function confidenceBadge(score) {
+    if (score >= 90) return '<span class="badge badge-danger">Confirmed Duplicate</span>';
+    if (score >= 70) return '<span class="badge badge-danger">High Probability</span>';
+    if (score >= 50) return '<span class="badge badge-warning">Possible Duplicate</span>';
+    return '<span class="badge badge-neutral">Probably Unique</span>';
+  }
+
+  function buildCard(m, newLeadId, existingLeadId, isReviewRow, newBusinessOverride) {
+    var card = document.createElement('div');
+    card.className = 'review-card';
+    var tags = (m.matchingFields || []).map(function (f) {
+      return '<span class="tag"><svg class="icon" viewBox="0 0 24 24" width="12" height="12"><circle cx="12" cy="12" r="9"/><polyline points="8,12 11,15 16,9"/></svg>' + escapeHtml(f) + '</span>';
+    }).join('');
+
+    card.innerHTML =
+      '<div class="review-top">' + confidenceBadge(m.score) + '<span class="review-score">' + m.score + '%</span></div>' +
+      '<div class="compare-grid">' +
+      '  <div class="compare-col"><div class="lead-label">New Lead</div><div class="lead-name">' + escapeHtml(newBusinessOverride || '(checked lead)') + '</div><div class="lead-id">' + newLeadId + '</div></div>' +
+      '  <div class="vs">vs</div>' +
+      '  <div class="compare-col"><div class="lead-label">Existing Lead</div><div class="lead-name">' + escapeHtml(m.businessName) + '</div><div class="lead-id">' + existingLeadId + '</div></div>' +
+      '</div>' +
+      '<div class="tag-row">' + tags + '</div>' +
+      '<div class="btn-row">' +
+      '  <button class="btn btn-primary" data-a="Merge">Merge</button>' +
+      '  <button class="btn btn-success" data-a="Keep Both">Keep Both</button>' +
+      '  <button class="btn btn-secondary" data-a="Dismiss">Dismiss</button>' +
+      '</div>';
+    card.querySelectorAll('button').forEach(function (btn) {
+      btn.onclick = function () { resolve(newLeadId, existingLeadId, btn.getAttribute('data-a'), card); };
+    });
+    return card;
+  }
+
+  function resolve(newLeadId, existingLeadId, decision, card) {
+    if (decision === 'Merge' && !confirm('Merge ' + newLeadId + ' into ' + existingLeadId + '? This preserves history in the Audit Log.')) return;
+    google.script.run.withSuccessHandler(function (res) {
+      if (res.success) {
+        showMsg(res.message, 'success');
+        if (card) card.remove();
+      } else {
+        showMsg(res.error, 'error');
+      }
+    }).resolveReview(newLeadId, existingLeadId, decision);
+  }
+
+  function showMsg(text, type) {
+    var icon = type === 'success'
+      ? '<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="8,12 11,15 16,9"/></svg>'
+      : '<svg class="icon" viewBox="0 0 24 24"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>';
+    document.getElementById('globalMsg').innerHTML = '<div class="alert alert-' + type + '">' + icon + '<span>' + escapeHtml(text) + '</span></div>';
+  }
+
+  function escapeHtml(s) {
+    return String(s || '').replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+</script>
+</body>
+</html>

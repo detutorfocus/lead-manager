@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html>
+<head>
+<base target="_top">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --primary: #1a73e8; --primary-dark: #1557b0; --primary-light: #e8f0fe;
+    --background: #f6f8fc; --surface: #ffffff; --border: #e3e6ea;
+    --text: #202124; --muted: #5f6368; --muted-light: #80868b;
+    --success: #1e8e3e; --success-bg: #e6f4ea; --success-border: #b7dfc0;
+    --warning: #a15c00; --warning-bg: #fef7e0; --warning-border: #fce8b2;
+    --danger: #c5221f; --danger-bg: #fce8e6; --danger-border: #f6aea9;
+    --radius: 10px; --radius-sm: 7px;
+    --shadow: 0 1px 2px rgba(16,24,40,0.05), 0 2px 6px rgba(16,24,40,0.06);
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 13.5px; color: var(--text); margin: 0; background: var(--background);
+    -webkit-font-smoothing: antialiased;
+  }
+  .app-shell { max-width: 640px; margin: 0 auto; padding: 0 0 28px; }
+  .topbar { padding: 14px 18px 0; }
+  .brand { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--primary); }
+  .page-header { display: flex; align-items: flex-start; gap: 10px; padding: 6px 18px 16px; }
+  .page-header .icon-badge {
+    flex: none; width: 34px; height: 34px; border-radius: var(--radius-sm); background: var(--primary-light);
+    color: var(--primary); display: flex; align-items: center; justify-content: center;
+  }
+  .page-header h1 { font-size: 17px; margin: 2px 0 2px; font-weight: 700; }
+  .page-header p { margin: 0; font-size: 12.5px; color: var(--muted); line-height: 1.4; }
+
+  main { padding: 0 18px; }
+  .card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 16px; margin-bottom: 14px;
+  }
+  .card-title {
+    display: flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 700;
+    color: var(--text); margin: 0 0 12px; padding-bottom: 10px; border-bottom: 1px solid var(--border);
+  }
+  .card-title .count-hint { margin-left: auto; font-weight: 500; color: var(--muted-light); font-size: 11px; }
+
+  .field { margin-bottom: 12px; }
+  .field:last-child { margin-bottom: 0; }
+  .field label { display: block; font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .field label .opt { font-weight: 400; color: var(--muted-light); }
+  .field label .req { color: var(--danger); margin-left: 2px; }
+  .field .hint { font-size: 11px; color: var(--muted-light); margin-top: 4px; }
+  .field .field-error {
+    display: none; align-items: center; gap: 5px; font-size: 11.5px; color: var(--danger); margin-top: 5px; font-weight: 500;
+  }
+  .field.has-error .field-error { display: flex; }
+  .field.has-error input, .field.has-error textarea { border-color: var(--danger) !important; background: #fffaf9; }
+
+  input[type=text], input[type=email], input[type=tel], input[type=url], select, textarea {
+    width: 100%; padding: 8px 10px; border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+    font-size: 13px; font-family: inherit; color: var(--text); background: var(--surface);
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(26,115,232,0.14);
+  }
+  input[readonly] { background: #f4f5f7; color: var(--muted); }
+  textarea { min-height: 68px; resize: vertical; line-height: 1.45; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  @media (max-width: 420px) { .row2 { grid-template-columns: 1fr; } }
+
+  .icon { width: 16px; height: 16px; flex: none; }
+  .icon-lg { width: 20px; height: 20px; }
+  svg.icon, svg.icon-lg { stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+  button { font-family: inherit; cursor: pointer; border: none; border-radius: var(--radius-sm); font-weight: 600; font-size: 13px; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 16px; }
+  .btn-block { width: 100%; }
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-primary:hover { background: var(--primary-dark); }
+  .btn-primary:active { transform: translateY(1px); }
+  .btn-primary:disabled { background: #a9c3ea; cursor: not-allowed; transform: none; }
+  .btn-secondary { background: #f1f3f4; color: var(--text); }
+  .btn-secondary:hover { background: #e4e6e8; }
+  .btn-danger { background: var(--danger-bg); color: var(--danger); border: 1px solid var(--danger-border); }
+  .btn-danger:hover { background: #fadad7; }
+  .btn-success { background: var(--success-bg); color: var(--success); border: 1px solid var(--success-border); }
+  .btn-success:hover { background: #d7eedd; }
+  .btn-sm { padding: 7px 11px; font-size: 12px; }
+  .btn:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  .btn-row .btn { flex: 1; min-width: 100px; }
+
+  .spinner {
+    width: 15px; height: 15px; border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff;
+    border-radius: 50%; animation: spin 0.7s linear infinite; flex: none;
+  }
+  .spinner-muted { border: 2px solid var(--border); border-top-color: var(--primary); }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-row { display: flex; align-items: center; gap: 8px; justify-content: center; padding: 14px; color: var(--muted); font-size: 12.5px; }
+
+  .alert { display: flex; gap: 9px; align-items: flex-start; padding: 11px 12px; border-radius: var(--radius-sm); font-size: 12.5px; margin-bottom: 12px; border: 1px solid; line-height: 1.4; }
+  .alert .icon { margin-top: 1px; }
+  .alert-error { background: var(--danger-bg); border-color: var(--danger-border); color: var(--danger); }
+  .alert-warning { background: var(--warning-bg); border-color: var(--warning-border); color: var(--warning); }
+  .alert-success { background: var(--success-bg); border-color: var(--success-border); color: var(--success); }
+
+  .banner { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: var(--radius-sm); font-weight: 700; font-size: 12.5px; margin-bottom: 10px; border: 1px solid; }
+  .b-danger { background: var(--danger-bg); color: var(--danger); border-color: var(--danger-border); }
+  .b-warning { background: var(--warning-bg); color: var(--warning); border-color: var(--warning-border); }
+  .b-success { background: var(--success-bg); color: var(--success); border-color: var(--success-border); }
+
+  .match-card { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; margin-bottom: 10px; background: #fbfbfc; }
+  .match-head { display: flex; align-items: center; gap: 8px; }
+  .match-name { font-weight: 700; font-size: 13.5px; flex: 1; }
+  .match-score { font-weight: 800; font-size: 14px; padding: 2px 9px; border-radius: 20px; }
+  .score-hi { background: var(--danger-bg); color: var(--danger); }
+  .score-mid { background: var(--warning-bg); color: var(--warning); }
+  .match-meta { font-size: 11px; color: var(--muted-light); margin: 3px 0 8px; }
+  .tag-row { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 4px; }
+  .tag { display: inline-flex; align-items: center; gap: 4px; background: var(--primary-light); color: var(--primary-dark); border-radius: 20px; padding: 3px 9px; font-size: 11px; font-weight: 600; }
+
+  .badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10.5px; font-weight: 700; padding: 3px 8px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.03em; }
+  .badge-danger { background: var(--danger-bg); color: var(--danger); }
+  .badge-warning { background: var(--warning-bg); color: var(--warning); }
+  .badge-success { background: var(--success-bg); color: var(--success); }
+
+  .success-card { text-align: center; padding: 26px 16px; }
+  .success-card .check-circle {
+    width: 52px; height: 52px; border-radius: 50%; background: var(--success-bg); color: var(--success);
+    display: flex; align-items: center; justify-content: center; margin: 0 auto 12px;
+  }
+  .success-card h3 { margin: 0 0 4px; font-size: 16px; }
+  .success-card p { margin: 0 0 14px; color: var(--muted); font-size: 12.5px; }
+  .success-meta { text-align: left; background: var(--background); border-radius: var(--radius-sm); padding: 10px 12px; margin-bottom: 14px; font-size: 12px; }
+  .success-meta div { display: flex; justify-content: space-between; padding: 3px 0; }
+  .success-meta span:first-child { color: var(--muted); }
+  .success-meta span:last-child { font-weight: 600; }
+
+  ::selection { background: rgba(26,115,232,0.2); }
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <div class="topbar"><div class="brand">LeadManagement</div></div>
+
+  <div class="page-header">
+    <div class="icon-badge">
+      <svg class="icon-lg" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    </div>
+    <div>
+      <h1>Add New Lead</h1>
+      <p>Capture a qualified prospect and keep your outreach data organized.</p>
+    </div>
+  </div>
+
+  <main>
+    <div id="globalMsg"></div>
+
+    <form id="leadForm">
+      <div class="card">
+        <div class="card-title">
+          <svg class="icon" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          Business Information
+        </div>
+        <div class="field">
+          <label for="businessName">Business Name<span class="req">*</span></label>
+          <input type="text" id="businessName" placeholder="e.g. Mama T's Kitchen" required>
+          <div class="field-error"><svg class="icon" viewBox="0 0 24 24" width="13" height="13"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="13"/><circle cx="12" cy="16.2" r="0.6" fill="currentColor" stroke="none"/></svg><span>Business name is required.</span></div>
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label for="sector">Sector<span class="req">*</span></label>
+            <input type="text" id="sector" placeholder="e.g. Food &amp; catering" required>
+            <div class="field-error"><svg class="icon" viewBox="0 0 24 24" width="13" height="13"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="13"/><circle cx="12" cy="16.2" r="0.6" fill="currentColor" stroke="none"/></svg><span>Sector is required.</span></div>
+          </div>
+          <div class="field">
+            <label for="city">City<span class="req">*</span></label>
+            <input type="text" id="city" placeholder="e.g. Lagos" required>
+            <div class="field-error"><svg class="icon" viewBox="0 0 24 24" width="13" height="13"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="13"/><circle cx="12" cy="16.2" r="0.6" fill="currentColor" stroke="none"/></svg><span>City is required.</span></div>
+          </div>
+        </div>
+        <div class="field">
+          <label for="branch">Branch / Location <span class="opt">(optional)</span></label>
+          <input type="text" id="branch" placeholder="e.g. Lekki branch">
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label for="website">Website <span class="opt">(optional)</span></label>
+            <input type="url" id="website" placeholder="https://">
+          </div>
+          <div class="field">
+            <label for="websiteStatus">Website Status</label>
+            <select id="websiteStatus"><option>None</option><option>Basic</option><option>Decent</option><option>Strong</option></select>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
+          Contact Information
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label for="contactName">Contact Name <span class="opt">(optional)</span></label>
+            <input type="text" id="contactName">
+          </div>
+          <div class="field">
+            <label for="contactRole">Contact Role <span class="opt">(optional)</span></label>
+            <input type="text" id="contactRole">
+          </div>
+        </div>
+        <div class="field">
+          <label for="instagram">Instagram Handle <span class="opt">(optional)</span></label>
+          <input type="text" id="instagram" placeholder="@handle or profile URL">
+        </div>
+        <div class="field">
+          <label for="linkedin">LinkedIn URL <span class="opt">(optional)</span></label>
+          <input type="url" id="linkedin">
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label for="email">Business Email <span class="opt">(optional)</span></label>
+            <input type="email" id="email">
+          </div>
+          <div class="field">
+            <label for="whatsapp">WhatsApp Business Line <span class="opt">(optional)</span></label>
+            <input type="tel" id="whatsapp" placeholder="08012345678">
+          </div>
+        </div>
+        <div class="hint" id="channelHint" style="display:none;">
+          <div class="alert alert-warning" style="margin-top:8px;margin-bottom:0;">
+            <svg class="icon" viewBox="0 0 24 24"><polygon points="12,3 22,20 2,20"/><line x1="12" y1="9" x2="12" y2="14"/><circle cx="12" cy="17" r="0.6" fill="currentColor" stroke="none"/></svg>
+            <span>Add at least one contact channel (Instagram, LinkedIn, Email, WhatsApp, or Website) so this lead is reachable.</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <svg class="icon" viewBox="0 0 24 24"><polygon points="4,4 20,4 14,12 14,18 10,20 10,12"/></svg>
+          Qualification
+        </div>
+        <div class="field">
+          <label for="icp">ICP <span class="opt">(optional)</span></label>
+          <select id="icp">
+            <option value="">— select —</option>
+            <option>Growth-Stage</option><option>Investor-Facing</option>
+            <option>Consistency Seeker</option><option>Early-Stage</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="trigger">Trigger <span class="opt">(optional)</span></label>
+          <select id="trigger">
+            <option value="">— select —</option>
+            <option>Funding</option><option>Product launch</option><option>New branch</option>
+            <option>Hiring</option><option>Expansion</option><option>Rebranding</option>
+            <option>Increased social activity</option><option>New website</option>
+            <option>New product/service</option><option>Other</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="observation">Observation<span class="req">*</span></label>
+          <textarea id="observation" placeholder="One specific, real observation about this business — e.g. posting daily but no visible price list." required></textarea>
+          <div class="field-error"><svg class="icon" viewBox="0 0 24 24" width="13" height="13"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="13"/><circle cx="12" cy="16.2" r="0.6" fill="currentColor" stroke="none"/></svg><span>Please add a specific observation.</span></div>
+        </div>
+        <div class="field">
+          <label for="source">Source<span class="req">*</span></label>
+          <input type="text" id="source" placeholder="e.g. Instagram outreach, field visit" required>
+          <div class="field-error"><svg class="icon" viewBox="0 0 24 24" width="13" height="13"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="13"/><circle cx="12" cy="16.2" r="0.6" fill="currentColor" stroke="none"/></svg><span>Source is required.</span></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
+          Record Details
+        </div>
+        <div class="field">
+          <label for="assignedTo">Assigned To <span class="opt">(optional)</span></label>
+          <input type="text" id="assignedTo" placeholder="Team member who will follow up">
+        </div>
+        <div class="field">
+          <label for="addedBy">Added By</label>
+          <input type="text" id="addedBy" readonly>
+          <div class="hint">Detected automatically from your Google account.</div>
+        </div>
+      </div>
+
+      <button type="button" class="btn btn-primary btn-block" id="checkBtn" onclick="runCheck()">
+        <svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        Check Duplicate
+      </button>
+    </form>
+
+    <div id="loading" style="display:none;" class="loading-row">
+      <span class="spinner spinner-muted"></span> Checking for duplicates…
+    </div>
+    <div id="results" style="margin-top: 14px;"></div>
+  </main>
+</div>
+
+<script>
+  google.script.run.withSuccessHandler(function (email) {
+    document.getElementById('addedBy').value = email || 'Unknown User';
+  }).getCurrentUserEmail();
+
+  function getFormData() {
+    return {
+      businessName: v('businessName'), sector: v('sector'), city: v('city'), branch: v('branch'),
+      contactName: v('contactName'), contactRole: v('contactRole'),
+      instagram: v('instagram'), linkedin: v('linkedin'), email: v('email'), whatsapp: v('whatsapp'),
+      website: v('website'), websiteStatus: document.getElementById('websiteStatus').value,
+      icp: document.getElementById('icp').value, trigger: document.getElementById('trigger').value,
+      observation: v('observation'), source: v('source'), addedBy: v('addedBy'), assignedTo: v('assignedTo')
+    };
+  }
+  function v(id) { return document.getElementById(id).value.trim(); }
+
+  function iconWarn() {
+    return '<svg class="icon" viewBox="0 0 24 24"><polygon points="12,3 22,20 2,20"/><line x1="12" y1="9" x2="12" y2="14"/><circle cx="12" cy="17" r="0.6" fill="currentColor" stroke="none"/></svg>';
+  }
+  function iconError() {
+    return '<svg class="icon" viewBox="0 0 24 24"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>';
+  }
+  function iconCheck() {
+    return '<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="8,12 11,15 16,9"/></svg>';
+  }
+
+  function showMsg(text, type) {
+    var icon = type === 'error' ? iconError() : type === 'warning' ? iconWarn() : iconCheck();
+    document.getElementById('globalMsg').innerHTML =
+      '<div class="alert alert-' + type + '">' + icon + '<span>' + text + '</span></div>';
+  }
+  function clearMsg() { document.getElementById('globalMsg').innerHTML = ''; }
+
+  function clearFieldErrors() {
+    document.querySelectorAll('.field.has-error').forEach(function (f) { f.classList.remove('has-error'); });
+  }
+  function markFieldError(id) {
+    var input = document.getElementById(id);
+    var field = input.closest('.field');
+    if (field) field.classList.add('has-error');
+  }
+
+  function runCheck() {
+    clearMsg();
+    clearFieldErrors();
+    var data = getFormData();
+
+    var missing = [];
+    if (!data.businessName) missing.push('businessName');
+    if (!data.sector) missing.push('sector');
+    if (!data.city) missing.push('city');
+    if (!data.observation) missing.push('observation');
+    if (!data.source) missing.push('source');
+
+    if (missing.length) {
+      missing.forEach(markFieldError);
+      showMsg('Please fill in the highlighted required fields.', 'error');
+      document.getElementById(missing[0]).focus();
+      return;
+    }
+
+    document.getElementById('channelHint').style.display =
+      (data.instagram || data.linkedin || data.email || data.whatsapp || data.website) ? 'none' : 'block';
+
+    document.getElementById('checkBtn').disabled = true;
+    document.getElementById('loading').style.display = 'flex';
+    document.getElementById('results').innerHTML = '';
+
+    google.script.run
+      .withSuccessHandler(function (res) { onCheckComplete(res, data); })
+      .withFailureHandler(function (err) { onError(err); })
+      .checkForDuplicates(data);
+  }
+
+  function onError(err) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('checkBtn').disabled = false;
+    showMsg('Something went wrong: ' + (err && err.message ? err.message : err), 'error');
+  }
+
+  function onCheckComplete(res, data) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('checkBtn').disabled = false;
+
+    if (!res.success) {
+      showMsg(res.error + (res.details ? ' (' + res.details + ')' : ''), 'error');
+      return;
+    }
+
+    var container = document.getElementById('results');
+    container.innerHTML = '';
+
+    if (res.status === 'NO_STRONG_MATCH' || res.matches.length === 0) {
+      var okCard = document.createElement('div');
+      okCard.className = 'card';
+      okCard.innerHTML =
+        '<div class="banner b-success">' + iconCheck() + ' No strong match found</div>' +
+        '<p style="color:var(--muted);font-size:12.5px;margin:0 0 10px;">This looks like a new business. You can save it with confidence.</p>';
+      var saveBtn = document.createElement('button');
+      saveBtn.className = 'btn btn-success btn-block'; saveBtn.textContent = 'Save Lead';
+      saveBtn.onclick = function () { doSave(data); };
+      okCard.appendChild(saveBtn);
+      container.appendChild(okCard);
+      return;
+    }
+
+    var labelMap = { CONFIRMED_DUPLICATE: 'Confirmed Duplicate', LIKELY_DUPLICATE: 'Likely Duplicate', POSSIBLE_DUPLICATE: 'Possible Duplicate' };
+    var bannerClass = res.status === 'POSSIBLE_DUPLICATE' ? 'b-warning' : 'b-danger';
+
+    var card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = '<div class="banner ' + bannerClass + '">' + iconWarn() + ' ' + (labelMap[res.status] || res.status) + ' Found</div>';
+    container.appendChild(card);
+
+    res.matches.forEach(function (m) {
+      var mc = document.createElement('div');
+      mc.className = 'match-card';
+      var scoreClass = m.score >= 90 ? 'score-hi' : 'score-mid';
+      var tags = m.matchingFields.map(function (f) {
+        return '<span class="tag">' + iconCheck() + escapeHtml(f) + '</span>';
+      }).join('');
+      mc.innerHTML =
+        '<div class="match-head"><span class="match-name">' + escapeHtml(m.businessName) + '</span>' +
+        '<span class="match-score ' + scoreClass + '">' + m.score + '%</span></div>' +
+        '<div class="match-meta">Lead ID ' + m.leadId + '</div>' +
+        '<div class="tag-row">' + tags + '</div>' +
+        '<div class="btn-row">' +
+        '  <button class="btn btn-secondary btn-sm" data-act="view">Review Existing</button>' +
+        '  <button class="btn btn-secondary btn-sm" data-act="merge">Merge</button>' +
+        '  <button class="btn btn-success btn-sm" data-act="keep">Keep Both</button>' +
+        '</div>';
+      card.appendChild(mc);
+      mc.querySelectorAll('button').forEach(function (btn) {
+        btn.onclick = function () {
+          var act = btn.getAttribute('data-act');
+          if (act === 'view') viewLead(m.leadId);
+          if (act === 'merge') openMerge(m.leadId, data);
+          if (act === 'keep') doKeepBoth(data, m.leadId);
+        };
+      });
+    });
+
+    var bottomActions = document.createElement('div');
+    bottomActions.className = 'btn-row';
+    bottomActions.innerHTML =
+      '<button class="btn btn-danger" id="createAnywayBtn">Continue Anyway</button>' +
+      '<button class="btn btn-secondary" id="cancelBtn">Cancel</button>';
+    card.appendChild(bottomActions);
+    document.getElementById('createAnywayBtn').onclick = function () { doCreateAnyway(data, res.matches); };
+    document.getElementById('cancelBtn').onclick = function () { container.innerHTML = ''; };
+  }
+
+  function viewLead(leadId) {
+    google.script.run.withSuccessHandler(function (lead) {
+      if (!lead) { showMsg('Lead not found.', 'error'); return; }
+      alert('Business: ' + lead['Business Name'] + '\\nCity: ' + (lead['City']||'') +
+        '\\nInstagram: ' + (lead['Instagram Handle']||'') + '\\nWebsite: ' + (lead['Website']||'') +
+        '\\nContact: ' + (lead['Contact Name']||'') + '\\nObservation: ' + (lead['Observation']||''));
+    }).getLeadById(leadId);
+  }
+
+  function openMerge(existingLeadId, data) {
+    if (!confirm('Merge this new lead into existing record ' + existingLeadId + '?\\nExisting field values are kept; blanks are filled from the new lead, and the observation/source are preserved from both.')) return;
+    google.script.run
+      .withSuccessHandler(function (res) { if (res.success) { renderSuccess(res, data); } else showMsg(res.error, 'error'); })
+      .withFailureHandler(onError)
+      .mergeLeads(data, existingLeadId, {});
+  }
+
+  function doKeepBoth(data, existingLeadId) {
+    if (!confirm('Save this as a separate, legitimate record?')) return;
+    google.script.run.withSuccessHandler(function (res) { handleSaveResult(res, data); }).withFailureHandler(onError).keepBoth(data, existingLeadId);
+  }
+
+  function doCreateAnyway(data, matches) {
+    if (!confirm('This lead appears to match an existing business. Are you sure you want to create it?')) return;
+    google.script.run.withSuccessHandler(function (res) { handleSaveResult(res, data); }).withFailureHandler(onError).createAnyway(data, matches);
+  }
+
+  function doSave(data) {
+    google.script.run.withSuccessHandler(function (res) { handleSaveResult(res, data); }).withFailureHandler(onError).saveLead(data);
+  }
+
+  function handleSaveResult(res, data) {
+    if (!res.success) { showMsg(res.error, 'error'); return; }
+    if (res.channelWarning) showMsg(res.channelWarning, 'warning');
+    if (res.observationWarning) showMsg(res.observationWarning, 'warning');
+    renderSuccess(res, data);
+  }
+
+  function renderSuccess(res, data) {
+    document.getElementById('results').innerHTML =
+      '<div class="card success-card">' +
+      '  <div class="check-circle">' + iconCheckLg() + '</div>' +
+      '  <h3>Lead added successfully</h3>' +
+      '  <p>This lead is now in your tracker.</p>' +
+      '  <div class="success-meta">' +
+      '    <div><span>Business</span><span>' + escapeHtml(data.businessName) + '</span></div>' +
+      (res.leadId ? '    <div><span>Lead ID</span><span>' + res.leadId + '</span></div>' : '') +
+      (data.assignedTo ? '    <div><span>Assigned To</span><span>' + escapeHtml(data.assignedTo) + '</span></div>' : '') +
+      '    <div><span>Added By</span><span>' + escapeHtml(data.addedBy || '') + '</span></div>' +
+      '  </div>' +
+      '  <div class="btn-row">' +
+      '    <button class="btn btn-primary" id="addAnotherBtn">Add Another Lead</button>' +
+      (res.leadId ? '    <button class="btn btn-secondary" id="viewSavedBtn">View Lead</button>' : '') +
+      '    <button class="btn btn-secondary" id="closeBtn">Close</button>' +
+      '  </div>' +
+      '</div>';
+    document.getElementById('addAnotherBtn').onclick = function () { resetForm(); };
+    document.getElementById('closeBtn').onclick = function () {
+      document.getElementById('results').innerHTML = '';
+      try { google.script.host.close(); } catch (e) { /* not in a dialog/sidebar context */ }
+    };
+    var viewBtn = document.getElementById('viewSavedBtn');
+    if (viewBtn) viewBtn.onclick = function () { viewLead(res.leadId); };
+  }
+
+  function iconCheckLg() {
+    return '<svg class="icon-lg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="8,12 11,15 16,9"/></svg>';
+  }
+
+  function resetForm() {
+    document.getElementById('leadForm').reset();
+    clearFieldErrors();
+    clearMsg();
+    document.getElementById('results').innerHTML = '';
+    document.getElementById('channelHint').style.display = 'none';
+    google.script.run.withSuccessHandler(function (email) {
+      document.getElementById('addedBy').value = email || 'Unknown User';
+    }).getCurrentUserEmail();
+  }
+
+  function escapeHtml(s) {
+    return String(s || '').replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+</script>
+</body>
+</html>

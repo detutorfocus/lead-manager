@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+<base target="_top">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --primary: #1a73e8; --primary-dark: #1557b0; --primary-light: #e8f0fe;
+    --background: #f6f8fc; --surface: #ffffff; --border: #e3e6ea;
+    --text: #202124; --muted: #5f6368; --muted-light: #80868b;
+    --success: #1e8e3e; --success-bg: #e6f4ea; --success-border: #b7dfc0;
+    --warning: #a15c00; --warning-bg: #fef7e0; --warning-border: #fce8b2;
+    --danger: #c5221f; --danger-bg: #fce8e6; --danger-border: #f6aea9;
+    --radius: 10px; --radius-sm: 7px;
+    --shadow: 0 1px 2px rgba(16,24,40,0.05), 0 2px 6px rgba(16,24,40,0.06);
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 13.5px; color: var(--text); margin: 0; background: var(--background);
+  }
+  .app-shell { max-width: 640px; margin: 0 auto; padding: 0 0 28px; }
+  .topbar { padding: 14px 18px 0; }
+  .brand { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--primary); }
+  .page-header { display: flex; align-items: flex-start; gap: 10px; padding: 6px 18px 16px; }
+  .page-header .icon-badge {
+    flex: none; width: 34px; height: 34px; border-radius: var(--radius-sm); background: var(--primary-light);
+    color: var(--primary); display: flex; align-items: center; justify-content: center;
+  }
+  .page-header h1 { font-size: 17px; margin: 2px 0 2px; font-weight: 700; }
+  .page-header p { margin: 0; font-size: 12.5px; color: var(--muted); }
+
+  main { padding: 0 18px; }
+  .icon { width: 16px; height: 16px; flex: none; }
+  .icon-lg { width: 22px; height: 22px; }
+  svg.icon, svg.icon-lg { stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+  .alert { display: flex; gap: 9px; align-items: flex-start; padding: 11px 12px; border-radius: var(--radius-sm); font-size: 12.5px; margin-bottom: 12px; border: 1px solid; }
+  .alert-success { background: var(--success-bg); border-color: var(--success-border); color: var(--success); }
+  .alert-error { background: var(--danger-bg); border-color: var(--danger-border); color: var(--danger); }
+
+  .count-line { font-size: 12.5px; color: var(--muted); margin-bottom: 12px; }
+
+  .fu-card {
+    background: var(--surface); border: 1px solid var(--danger-border); border-left: 3px solid var(--danger);
+    border-radius: var(--radius-sm); box-shadow: var(--shadow); padding: 12px 13px; margin-bottom: 10px;
+  }
+  .fu-top { display: flex; align-items: center; gap: 8px; }
+  .fu-name { font-weight: 700; font-size: 13.5px; flex: 1; }
+  .days-badge { font-weight: 800; font-size: 12.5px; color: var(--danger); background: var(--danger-bg); border-radius: 20px; padding: 2px 9px; }
+  .fu-meta { font-size: 11.5px; color: var(--muted); margin: 6px 0 10px; line-height: 1.5; }
+  .fu-meta span { display: inline-block; margin-right: 10px; }
+
+  button { font-family: inherit; cursor: pointer; border: none; border-radius: var(--radius-sm); font-weight: 600; font-size: 12.5px; }
+  .btn-row { display: flex; gap: 7px; flex-wrap: wrap; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 5px; padding: 8px 12px; flex: 1; min-width: 96px; }
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-primary:hover { background: var(--primary-dark); }
+  .btn-success { background: var(--success-bg); color: var(--success); border: 1px solid var(--success-border); }
+  .btn-success:hover { background: #d7eedd; }
+
+  .empty-state { text-align: center; padding: 44px 20px; color: var(--muted); }
+  .empty-state svg { color: var(--success); margin-bottom: 10px; }
+  .empty-state h3 { margin: 0 0 4px; font-size: 14px; color: var(--text); }
+  .empty-state p { margin: 0; font-size: 12.5px; }
+  .loading-state { text-align: center; padding: 40px 20px; color: var(--muted); }
+  .spinner { width: 26px; height: 26px; border: 3px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto 10px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <div class="topbar"><div class="brand">LeadManagement</div></div>
+  <div class="page-header">
+    <div class="icon-badge"><svg class="icon-lg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="12,7 12,12 15,15"/></svg></div>
+    <div>
+      <h1>Follow-Ups Due</h1>
+      <p>Leads contacted 3+ days ago with no reply yet.</p>
+    </div>
+  </div>
+
+  <main>
+    <div id="globalMsg"></div>
+    <div id="countLine" class="count-line"></div>
+    <div id="list"><div class="loading-state"><div class="spinner"></div>Loading…</div></div>
+  </main>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', load);
+
+  function load() {
+    document.getElementById('list').innerHTML = '<div class="loading-state"><div class="spinner"></div>Loading…</div>';
+    google.script.run.withSuccessHandler(render).withFailureHandler(function (e) {
+      document.getElementById('list').innerHTML = emptyState('Could not load follow-ups', e.message || e, false);
+    }).getFollowUpLeads();
+  }
+
+  function emptyState(title, desc, positive) {
+    var icon = positive
+      ? '<svg class="icon-lg" viewBox="0 0 24 24" style="width:36px;height:36px;"><circle cx="12" cy="12" r="9"/><polyline points="8,12 11,15 16,9"/></svg>'
+      : '<svg class="icon-lg" viewBox="0 0 24 24" style="width:36px;height:36px;"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="13"/><circle cx="12" cy="16.2" r="0.6" fill="currentColor" stroke="none"/></svg>';
+    return '<div class="empty-state">' + icon + '<h3>' + escapeHtml(title) + '</h3><p>' + escapeHtml(desc) + '</p></div>';
+  }
+
+  function render(leads) {
+    document.getElementById('countLine').textContent =
+      leads.length + ' lead' + (leads.length === 1 ? '' : 's') + ' need attention, sorted by most overdue.';
+    var el = document.getElementById('list');
+    if (!leads.length) { el.innerHTML = emptyState('No follow-ups due', 'Everyone is caught up. Nice work.', true); return; }
+    el.innerHTML = '';
+    leads.forEach(function (l) {
+      var card = document.createElement('div');
+      card.className = 'fu-card';
+      card.innerHTML =
+        '<div class="fu-top"><span class="fu-name">' + escapeHtml(l.businessName) + '</span><span class="days-badge">' + l.daysSinceContact + 'd</span></div>' +
+        '<div class="fu-meta">' +
+        '  <span>' + l.leadId + '</span>' +
+        (l.contactName ? '<span>Contact: ' + escapeHtml(l.contactName) + '</span>' : '') +
+        '  <span>Assigned: ' + escapeHtml(l.assignedTo || 'unassigned') + '</span>' +
+        (l.channel ? '<span>Channel: ' + escapeHtml(l.channel) + '</span>' : '') +
+        '  <span>Last contacted: ' + escapeHtml(l.lastContactDate || 'unknown') + '</span>' +
+        '  <span>Follow-ups so far: ' + l.followUpCount + '</span>' +
+        '</div>' +
+        '<div class="btn-row">' +
+        '  <button class="btn btn-success" data-a="complete">Mark Complete</button>' +
+        '  <button class="btn btn-primary" data-a="replied">Record Reply</button>' +
+        '</div>';
+      card.querySelectorAll('button').forEach(function (btn) {
+        btn.onclick = function () {
+          var a = btn.getAttribute('data-a');
+          if (a === 'complete') markComplete(l.leadId, card);
+          if (a === 'replied') recordReply(l.leadId, card);
+        };
+      });
+      el.appendChild(card);
+    });
+  }
+
+  function markComplete(leadId, card) {
+    var next = prompt('Optional: note the next action for this lead (leave blank to skip).', '') || '';
+    google.script.run.withSuccessHandler(function (res) {
+      if (res.success) { showMsg('Marked as followed up.', 'success'); card.remove(); checkEmpty(); }
+      else showMsg(res.error, 'error');
+    }).markFollowUpComplete(leadId, next);
+  }
+
+  function recordReply(leadId, card) {
+    if (!confirm('Record that this prospect replied? This stops further follow-up alerts for this lead.')) return;
+    google.script.run.withSuccessHandler(function (res) {
+      if (res.success) { showMsg('Reply recorded.', 'success'); card.remove(); checkEmpty(); }
+      else showMsg(res.error, 'error');
+    }).recordResponse(leadId, 'Replied');
+  }
+
+  function checkEmpty() {
+    if (!document.querySelector('.fu-card')) {
+      document.getElementById('list').innerHTML = emptyState('No follow-ups due', 'Everyone is caught up. Nice work.', true);
+      document.getElementById('countLine').textContent = '0 leads need attention.';
+    }
+  }
+
+  function showMsg(text, type) {
+    var icon = type === 'success'
+      ? '<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="8,12 11,15 16,9"/></svg>'
+      : '<svg class="icon" viewBox="0 0 24 24"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>';
+    document.getElementById('globalMsg').innerHTML = '<div class="alert alert-' + type + '">' + icon + '<span>' + escapeHtml(text) + '</span></div>';
+  }
+
+  function escapeHtml(s) {
+    return String(s || '').replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+</script>
+</body>
+</html>

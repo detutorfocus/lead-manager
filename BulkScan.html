@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+<head>
+<base target="_top">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    --primary: #1a73e8; --primary-dark: #1557b0; --primary-light: #e8f0fe;
+    --background: #f6f8fc; --surface: #ffffff; --border: #e3e6ea;
+    --text: #202124; --muted: #5f6368; --muted-light: #80868b;
+    --success: #1e8e3e; --success-bg: #e6f4ea; --success-border: #b7dfc0;
+    --warning: #a15c00; --warning-bg: #fef7e0; --warning-border: #fce8b2;
+    --danger: #c5221f; --danger-bg: #fce8e6; --danger-border: #f6aea9;
+    --radius: 10px; --radius-sm: 7px;
+    --shadow: 0 1px 2px rgba(16,24,40,0.05), 0 2px 6px rgba(16,24,40,0.06);
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 13.5px; color: var(--text); margin: 0; background: var(--background);
+  }
+  .app-shell { max-width: 640px; margin: 0 auto; padding: 0 0 28px; }
+  .topbar { padding: 14px 18px 0; }
+  .brand { font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--primary); }
+  .page-header { display: flex; align-items: flex-start; gap: 10px; padding: 6px 18px 16px; }
+  .page-header .icon-badge {
+    flex: none; width: 34px; height: 34px; border-radius: var(--radius-sm); background: var(--primary-light);
+    color: var(--primary); display: flex; align-items: center; justify-content: center;
+  }
+  .page-header h1 { font-size: 17px; margin: 2px 0 2px; font-weight: 700; }
+  .page-header p { margin: 0; font-size: 12.5px; color: var(--muted); }
+
+  main { padding: 0 18px; }
+  .icon { width: 16px; height: 16px; flex: none; }
+  .icon-lg { width: 22px; height: 22px; }
+  svg.icon, svg.icon-lg { stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+  .card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    box-shadow: var(--shadow); padding: 16px; margin-bottom: 14px;
+  }
+  .scan-info { display: flex; gap: 18px; margin-bottom: 12px; flex-wrap: wrap; }
+  .scan-info .stat .num { font-size: 20px; font-weight: 800; color: var(--text); }
+  .scan-info .stat .label { font-size: 11px; color: var(--muted-light); text-transform: uppercase; letter-spacing: 0.03em; font-weight: 600; }
+  .scan-desc { font-size: 12.5px; color: var(--muted); line-height: 1.5; margin-bottom: 14px; }
+
+  button { font-family: inherit; cursor: pointer; border: none; border-radius: var(--radius-sm); font-weight: 600; font-size: 13px; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 10px 16px; }
+  .btn-block { width: 100%; }
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-primary:hover { background: var(--primary-dark); }
+  .btn-primary:disabled { background: #a9c3ea; cursor: not-allowed; }
+  .btn-primary:focus-visible { outline: 2px solid var(--primary-dark); outline-offset: 2px; }
+
+  .progress-card { display: none; }
+  .progress-card.show { display: block; }
+  .progress-status { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--text); margin-bottom: 10px; font-weight: 600; }
+  .bar-track { background: #eceff3; border-radius: 20px; height: 10px; overflow: hidden; }
+  .bar-fill { background: linear-gradient(90deg, var(--primary), #4c8df5); height: 100%; width: 0%; transition: width 0.25s ease; border-radius: 20px; }
+  .progress-pct { text-align: right; font-size: 11px; color: var(--muted-light); margin-top: 5px; font-weight: 600; }
+  .spinner-sm { width: 14px; height: 14px; border: 2px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 4px; }
+  @media (max-width: 480px) { .summary-grid { grid-template-columns: repeat(2, 1fr); } }
+  .summary-cell { border-radius: var(--radius-sm); padding: 12px 10px; text-align: center; border: 1px solid var(--border); background: var(--background); }
+  .summary-cell .num { font-size: 20px; font-weight: 800; }
+  .summary-cell .label { font-size: 10.5px; color: var(--muted-light); margin-top: 2px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.02em; }
+  .summary-cell.danger .num { color: var(--danger); }
+  .summary-cell.warning .num { color: var(--warning); }
+  .summary-cell.primary .num { color: var(--primary); }
+
+  .banner { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: var(--radius-sm); font-weight: 700; font-size: 12.5px; margin-bottom: 12px; border: 1px solid; }
+  .b-success { background: var(--success-bg); color: var(--success); border-color: var(--success-border); }
+  .b-error { background: var(--danger-bg); color: var(--danger); border-color: var(--danger-border); }
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <div class="topbar"><div class="brand">LeadManagement</div></div>
+  <div class="page-header">
+    <div class="icon-badge"><svg class="icon-lg" viewBox="0 0 24 24"><polygon points="12,2 22,8 12,14 2,8"/><polyline points="2,16 12,22 22,16"/><polyline points="2,12 12,18 22,12"/></svg></div>
+    <div>
+      <h1>Bulk Duplicate Scan</h1>
+      <p>Review your lead database for possible duplicate records.</p>
+    </div>
+  </div>
+
+  <main>
+    <div class="card">
+      <div class="scan-info">
+        <div class="stat"><div class="num" id="totalLeadsNum">—</div><div class="label">Leads in Database</div></div>
+        <div class="stat"><div class="num" id="lastScanNum" style="font-size:13px;font-weight:700;">—</div><div class="label">Last Scan</div></div>
+      </div>
+      <div class="scan-desc">
+        Checks every existing lead against every other lead using the same scoring engine as the duplicate checker, updates each row's duplicate status, and files significant matches into Duplicate Review. Original lead field values are never modified.
+      </div>
+      <button class="btn btn-primary btn-block" id="startBtn" onclick="start()">
+        <svg class="icon" viewBox="0 0 24 24" style="stroke:#fff;"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        Run Duplicate Scan
+      </button>
+    </div>
+
+    <div class="card progress-card" id="progressCard">
+      <div class="progress-status"><span class="spinner-sm" id="progressSpinner"></span><span id="status">Starting…</span></div>
+      <div class="bar-track"><div class="bar-fill" id="bar"></div></div>
+      <div class="progress-pct" id="progressPct"></div>
+    </div>
+
+    <div id="summary"></div>
+  </main>
+</div>
+
+<script>
+  var totals = { possible: 0, likely: 0, confirmed: 0 };
+
+  google.script.run.withSuccessHandler(function (info) {
+    document.getElementById('totalLeadsNum').textContent = info.totalLeads;
+    document.getElementById('lastScanNum').textContent = info.lastScanTime ? formatWhen(info.lastScanTime) : 'Never';
+  }).withFailureHandler(function () { /* stats are a nice-to-have */ }).getBulkScanInfo();
+
+  function formatWhen(iso) {
+    try {
+      var d = new Date(iso);
+      return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    } catch (e) { return iso; }
+  }
+
+  function start() {
+    document.getElementById('startBtn').disabled = true;
+    document.getElementById('summary').innerHTML = '';
+    document.getElementById('progressCard').classList.add('show');
+    document.getElementById('progressSpinner').style.display = 'inline-block';
+    totals = { possible: 0, likely: 0, confirmed: 0 };
+    document.getElementById('bar').style.width = '0%';
+    document.getElementById('status').textContent = 'Starting…';
+    document.getElementById('progressPct').textContent = '';
+    step(0);
+  }
+
+  function step(startIndex) {
+    google.script.run
+      .withSuccessHandler(function (res) { onBatch(res); })
+      .withFailureHandler(function (err) {
+        document.getElementById('progressSpinner').style.display = 'none';
+        document.getElementById('status').textContent = 'Error: ' + (err && err.message ? err.message : err);
+        document.getElementById('startBtn').disabled = false;
+      })
+      .scanLeadsBatch(startIndex);
+  }
+
+  function onBatch(res) {
+    if (!res.success) {
+      document.getElementById('progressSpinner').style.display = 'none';
+      document.getElementById('status').textContent = res.error;
+      document.getElementById('startBtn').disabled = false;
+      return;
+    }
+    if (res.total === 0) {
+      document.getElementById('progressSpinner').style.display = 'none';
+      document.getElementById('status').textContent = 'No leads to scan yet.';
+      document.getElementById('startBtn').disabled = false;
+      return;
+    }
+    totals.possible += res.batchCounts.possible;
+    totals.likely += res.batchCounts.likely;
+    totals.confirmed += res.batchCounts.confirmed;
+
+    var pct = Math.round((res.processed / res.total) * 100);
+    document.getElementById('bar').style.width = pct + '%';
+    document.getElementById('status').textContent = 'Scanning leads: ' + res.processed + ' / ' + res.total;
+    document.getElementById('progressPct').textContent = pct + '%';
+
+    if (res.done) {
+      document.getElementById('progressSpinner').style.display = 'none';
+      document.getElementById('status').textContent = 'Scan complete';
+      document.getElementById('startBtn').disabled = false;
+
+      document.getElementById('summary').innerHTML =
+        '<div class="card">' +
+        '  <div class="banner b-success"><svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="8,12 11,15 16,9"/></svg> Scan complete — ' + res.total + ' leads checked</div>' +
+        '  <div class="summary-grid">' +
+        '    <div class="summary-cell primary"><div class="num">' + res.total + '</div><div class="label">Total Scanned</div></div>' +
+        '    <div class="summary-cell warning"><div class="num">' + totals.possible + '</div><div class="label">Possible</div></div>' +
+        '    <div class="summary-cell danger"><div class="num">' + totals.likely + '</div><div class="label">Likely</div></div>' +
+        '    <div class="summary-cell danger"><div class="num">' + totals.confirmed + '</div><div class="label">Confirmed</div></div>' +
+        '  </div>' +
+        '</div>';
+
+      google.script.run.refreshDashboard();
+      google.script.run.withSuccessHandler(function (info) {
+        document.getElementById('lastScanNum').textContent = info.lastScanTime ? formatWhen(info.lastScanTime) : 'Never';
+      }).getBulkScanInfo();
+    } else {
+      step(res.nextIndex);
+    }
+  }
+</script>
+</body>
+</html>
